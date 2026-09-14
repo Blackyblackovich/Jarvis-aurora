@@ -243,7 +243,7 @@ select{appearance:none}
 <div class="tabsbar" id="taskTabs"><button class="ftab on" data-tt="list">📋 Список</button><button class="ftab" data-tt="cal">📅 Календарь</button><button class="ftab" data-tt="arc">🗄 Архив</button></div>
 <div id="taskPanel"></div></section>
 <section class="app" id="app-gede"><div class="ahead"><button class="aback" onclick="hubGo()">‹</button><b>Трекер</b><span class="abadge">life tracker</span></div><iframe id="ifr" src="gedeon.html"></iframe></section>
-<section class="app" id="app-set"><div class="ahead"><button class="aback" onclick="hubGo()">‹</button><b>Настройки</b><span class="abadge">v7.0</span></div>
+<section class="app" id="app-set"><div class="ahead"><button class="aback" onclick="hubGo()">‹</button><b>Настройки</b><span class="abadge">v7.1</span></div>
 <div class="w"><div class="wt">👤 Профиль</div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
 <div class="frow"><label>Имя</label><input id="pfFirst" placeholder="Иван"></div>
@@ -251,20 +251,24 @@ select{appearance:none}
 <button class="btn ghost" onclick="saveProfile()">Сохранить имя</button>
 <div class="hint" style="margin-top:8px">Имя появляется на главном экране при запуске</div></div>
 <div class="w"><div class="wt">🎨 Динамический фон</div><div class="themes" id="themeTiles"></div><div class="hint" style="margin-top:10px">Все три фона живые: пятна дышат, частицы летают</div></div>
-<div class="w"><div class="wt">🧠 Gemini AI</div>
+<div class="w"><div class="wt">🧠 ИИ (OpenRouter)</div>
 <div class="frow"><label>API-ключ OpenRouter</label>
 <input id="geminiKey" type="password" placeholder="sk-or-v1-..." autocomplete="off"></div>
-<div class="frow"><label>Модель</label>
-<select id="geminiModel">
-  <option value="deepseek/deepseek-r1:free">DeepSeek R1 (free)</option>
-  <option value="deepseek/deepseek-chat:free">DeepSeek Chat (free)</option>
-  <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (free)</option>
-  <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash (free)</option>
-  <option value="mistralai/mistral-small-3.1-24b-instruct:free">Mistral Small (free)</option>
-</select></div>
+<div class="frow"><label>Модель (ID)</label>
+<input id="geminiModel" list="modelList" placeholder="nvidia/nemotron-3-ultra:free" autocomplete="off">
+<datalist id="modelList">
+<option value="nvidia/nemotron-3-ultra:free">
+<option value="nvidia/nemotron-3.5-lightning:free">
+<option value="nvidia/nemotron-3-super:free">
+<option value="google/gemma-4-26b-a4b:free">
+<option value="google/gemma-4-31b:free">
+<option value="inclusionai/ling-3.0-flash-fin:free">
+<option value="nvidia/nemotron-3-nano-omni:free">
+<option value="thinkingmachines/inkling:free">
+</datalist></div>
 <div class="trow"><span>ИИ-анализ и умный голос</span>
 <input type="checkbox" id="geminiOn" style="width:24px;height:24px;accent-color:var(--acc)"></div>
-<div class="hint" style="margin-top:8px">Получи бесплатный ключ на <b>openrouter.ai/keys</b> (работает из РФ без VPN). Без ключа — обычный парсер.</div>
+<div class="hint" style="margin-top:8px">⭐ Лучшие: <b>Nemotron 3 Ultra</b> (умная), <b>Nemotron 3.5 Lightning</b> (быстрая для голоса), <b>Gemma 4</b> (лучший русский).<br>Если тест пишет «модель не найдена»: тапни модель в списке OpenRouter → скопируй ID из адресной строки (после openrouter.ai/) → вставь в поле выше.<br>🛡 Если модель отключат — приложение само переберёт запасные.</div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
 <button class="btn ghost" onclick="saveGemini()">Сохранить</button>
 <button class="btn ghost" onclick="testGemini()">🧪 Тест связи</button></div></div>
@@ -279,10 +283,10 @@ select{appearance:none}
 <div class="hint" style="margin-top:10px">Сохраняет Финансы, Дела, Трекер, профиль, PIN и настройки одним файлом</div></div>
 <div class="w"><div class="wt">ℹ️ О системе</div>
 <div class="trow"><span>Оболочка</span><b>Jarvis Aurora</b></div>
-<div class="trow"><span>Версия</span><b>7.0 · Gemini</b></div>
+<div class="trow"><span>Версия</span><b>7.1 · авто-модель</b></div>
 <div class="trow"><span>Голос</span><b>Web Speech API</b></div>
 <div class="trow"><span>Трекер</span><b>Трекер (iframe)</b></div>
-<div class="trow"><span>AI</span><b id="geminiStatus">обычный парсер</b></div></div></section>
+<div class="trow"><span>ИИ</span><b id="geminiStatus">обычный парсер</b></div></div></section>
 <div id="voiceOv">
  <div class="vTop"><button class="vBtn" id="vMute">🔊</button><button class="vBtn" id="vClose">✕</button></div>
  <div class="vOrb" id="vOrb"><div class="vBars"><i></i><i></i><i></i><i></i></div></div>
@@ -313,12 +317,13 @@ function closeModal(){$('#modal').classList.remove('show')}
 $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
 function countUp(el,to,dur=900){const st=performance.now();(function f(now){const t=Math.min((now-st)/dur,1),e=1-Math.pow(1-t,3);el.textContent=fmt(to*e);if(t<1)requestAnimationFrame(f)})(st)}
 const CAT_COLORS={food:'#ff6b6b',trans:'#4d96ff',fun:'#c77dff',health:'#6bcb77',home:'#ffd93d',cloth:'#ff9f45',edu:'#00d1d1',salary:'#a3e635',free:'#22d3ee',other:'#94a3b8'};
-const DEF={fin_tx:[],fin_cat:[{id:'food',n:'Еда',i:'🍔'},{id:'trans',n:'Транспорт',i:'🚗'},{id:'fun',n:'Развлечения',i:'🎮'},{id:'health',n:'Здоровье',i:'💊'},{id:'home',n:'Дом',i:'🏠'},{id:'cloth',n:'Одежда',i:'👕'},{id:'edu',n:'Образование',i:'📚'},{id:'salary',n:'Зарплата',i:'💼'},{id:'free',n:'Фриланс',i:'💻'},{id:'other',n:'Прочее',i:'📦'}],tasks:[],projects:[],settings:{bg:1,voice:true},profile:{first:'',last:''},pin:'3119',gemini:{key:'',model:'deepseek/deepseek-r1:free',on:true}};
+const MODEL_CHAIN=['nvidia/nemotron-3-ultra:free','nvidia/nemotron-3.5-lightning:free','nvidia/nemotron-3-super:free','google/gemma-4-26b-a4b:free','google/gemma-4-31b:free','inclusionai/ling-3.0-flash-fin:free','nvidia/nemotron-3-nano-omni:free'];
+const DEF={fin_tx:[],fin_cat:[{id:'food',n:'Еда',i:'🍔'},{id:'trans',n:'Транспорт',i:'🚗'},{id:'fun',n:'Развлечения',i:'🎮'},{id:'health',n:'Здоровье',i:'💊'},{id:'home',n:'Дом',i:'🏠'},{id:'cloth',n:'Одежда',i:'👕'},{id:'edu',n:'Образование',i:'📚'},{id:'salary',n:'Зарплата',i:'💼'},{id:'free',n:'Фриланс',i:'💻'},{id:'other',n:'Прочее',i:'📦'}],tasks:[],projects:[],settings:{bg:1,voice:true},profile:{first:'',last:''},pin:'3119',gemini:{key:'',model:'nvidia/nemotron-3-ultra:free',on:true}};
 let S;function load(){let d=null;try{d=JSON.parse(localStorage.getItem('jarvis_aurora'))}catch(e){}
  d=d&&d.fin_cat?d:JSON.parse(JSON.stringify(DEF));
  d.projects=d.projects||[];d.settings=d.settings||{bg:1};if(d.settings.voice===undefined)d.settings.voice=true;
  d.profile=d.profile||{first:'',last:''};d.pin=d.pin||'3119';
- d.gemini=Object.assign({key:'',model:'deepseek/deepseek-r1:free',on:true},d.gemini||{});
+ d.gemini=Object.assign({key:'',model:'nvidia/nemotron-3-ultra:free',on:true},d.gemini||{});
  d.fin_cat.forEach(c=>{if(CAT_COLORS[c.id])c.c=CAT_COLORS[c.id];if(!c.c)c.c='#94a3b8'});
  d.tasks.forEach(t=>{t.sub=t.sub||[];if(!t.date)t.date=t.deadline||null;delete t.deadline;t.doneDate=t.doneDate||null});
  return d}
@@ -382,38 +387,26 @@ function openApp(id){appOpen=id;vib(20);$('#hub').classList.remove('on');$('#app
  if(id==='tasks'){taskTab='list';renderTasks()}
  if(id==='set')renderSet()}
 function hubGo(){if(!appOpen)return;vib(15);$('#app-'+appOpen).classList.remove('open');$('#hub').classList.add('on');appOpen=null}
+function modelLabel(m){return (m||'').split('/').pop().replace(':free','')}
 function renderSet(){$('#themeTiles').innerHTML=[1,2,3].map(n=>`<div class="theme ${S.settings.bg===n?'on':''}" data-bg="${n}"><div class="pv pv${n}"></div>${['Аврора','Океан','Закат'][n-1]}</div>`).join('');
  $$('#themeTiles .theme').forEach(t=>t.onclick=()=>{applyTheme(+t.dataset.bg);vib(15);renderSet();toast('Фон: '+['Аврора','Океан','Закат'][+t.dataset.bg-1],'🎨')});
  $('#pinIn').value='';
  $('#pfFirst').value=S.profile.first||'';$('#pfLast').value=S.profile.last||'';
  const vs=$('#voiceSw');vs.checked=!!S.settings.voice;vs.onchange=()=>{S.settings.voice=vs.checked;save();toast(vs.checked?'Озвучка включена':'Озвучка выключена','🎙')};
  $('#geminiKey').value=S.gemini.key||'';
- $('#geminiModel').value=S.gemini.model||'deepseek/deepseek-r1:free';
+ $('#geminiModel').value=S.gemini.model||MODEL_CHAIN[0];
  $('#geminiOn').checked=!!S.gemini.on;
- $('#geminiStatus').textContent=S.gemini.key?(S.gemini.model.split('/').pop().replace(':free','')+' ✓'):'обычный парсер'}
+ $('#geminiStatus').textContent=S.gemini.key?(modelLabel(S.gemini.model)+' ✓'):'обычный парсер'}
 function savePin(){const v=$('#pinIn').value.trim();if(!/^\d{4}$/.test(v)){toast('PIN — 4 цифры','⚠️');return}S.pin=v;save();toast('PIN обновлён','🔐')}
 function saveGemini(){
  S.gemini.key=$('#geminiKey').value.trim();
- S.gemini.model=$('#geminiModel').value;
+ S.gemini.model=($('#geminiModel').value.trim()||MODEL_CHAIN[0]);
  S.gemini.on=$('#geminiOn').checked;
  save();
- $('#geminiStatus').textContent=S.gemini.key?(S.gemini.model.split('/').pop().replace(':free','')+' ✓'):'обычный парсер';
- toast(S.gemini.key?'🧠 ИИ подключён':'Ключ очищен',S.gemini.key?'✅':'🧹');
+ $('#geminiStatus').textContent=S.gemini.key?(modelLabel(S.gemini.model)+' ✓'):'обычный парсер';
+ toast(S.gemini.key?'🧠 ИИ подключён: '+modelLabel(S.gemini.model):'Ключ очищен',S.gemini.key?'✅':'🧹');
 }
-async function testGemini(){
- if(!S.gemini?.key){toast('⚠️ Сначала введи ключ и нажми Сохранить','⚠️');return}
- toast('🔄 Тест модели '+S.gemini.model.split('/').pop()+'…','⏳');
- try{
-  const r=await callGemini('Ответь ровно одним словом на русском, подтверждающим что связь работает.');
-  toast('✅ Ответ ИИ: '+r.slice(0,50),'🧠');
- }catch(e){
-  toast('❌ '+e.message,'⚠️');
-  alert('Подробная ошибка:\n\n'+e.message+'\n\nМодель: '+S.gemini.model+'\n\nЕсли «модель не найдена» — выбери другую в списке.');
- }
-}
-async function callGemini(userMsg,systemCtx=''){
- const key=S.gemini?.key,model=S.gemini?.model||'deepseek/deepseek-r1:free';
- if(!key)throw new Error('нет ключа — сохрани его в настройках');
+async function geminiOnce(key,model,userMsg,systemCtx){
  let res;
  try{
   res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
@@ -428,26 +421,54 @@ async function callGemini(userMsg,systemCtx=''){
     temperature:0.7,max_tokens:600
    })
   });
- }catch(netErr){
-  throw new Error('сеть: '+netErr.message+' (проверь интернет)');
- }
+ }catch(netErr){const e=new Error('сеть: '+netErr.message+' (проверь интернет)');e.fatal=true;throw e}
  const txt=await res.text();
  if(!res.ok){
-  let msg='HTTP '+res.status;
-  try{msg+=' — '+JSON.parse(txt).error.message}catch(e){msg+=' — '+txt.slice(0,80)}
-  if(res.status===404)msg='модель не найдена (устарела). Выбери другую!';
-  if(res.status===402)msg='кончились кредиты или модель не бесплатна';
-  if(res.status===401)msg='неверный ключ';
-  if(res.status===429)msg='слишком много запросов, подожди';
-  throw new Error(msg);
+  let msg='';
+  try{msg=JSON.parse(txt).error.message}catch(_){msg=txt.slice(0,80)}
+  if(res.status===401||res.status===403){const e=new Error('неверный ключ (HTTP '+res.status+')');e.fatal=true;throw e}
+  if(res.status===404){const e=new Error('модель '+model+' не найдена');e.fatal=false;throw e}
+  if(res.status===402){const e=new Error('кредиты кончились ('+model+')');e.fatal=false;throw e}
+  if(res.status===429){const e=new Error('лимит запросов ('+model+')');e.fatal=false;throw e}
+  const e=new Error('HTTP '+res.status+(msg?' — '+msg:''));e.fatal=false;throw e;
  }
- let j;try{j=JSON.parse(txt)}catch(e){throw new Error('странный ответ сервера')}
- if(j.error)throw new Error(j.error.message||'api error');
+ let j;try{j=JSON.parse(txt)}catch(_){const e=new Error('странный ответ сервера');e.fatal=false;throw e}
+ if(j.error){const e=new Error(j.error.message||'api error');e.fatal=false;throw e}
  return j.choices?.[0]?.message?.content?.trim()||'';
+}
+async function callGemini(userMsg,systemCtx=''){
+ const key=S.gemini?.key;
+ if(!key)throw new Error('нет ключа — сохрани его в настройках');
+ const primary=(S.gemini.model||'').trim()||MODEL_CHAIN[0];
+ const order=[primary,...MODEL_CHAIN.filter(m=>m!==primary)];
+ let lastErr=null;
+ for(const model of order){
+  try{
+   const out=await geminiOnce(key,model,userMsg,systemCtx);
+   if(model!==primary){S.gemini.model=model;save();toast('🔄 Модель авто-заменена на '+modelLabel(model),'🧠')}
+   return out;
+  }catch(e){
+   lastErr=e;
+   if(e.fatal)throw e;
+   continue;
+  }
+ }
+ throw lastErr||new Error('нет доступных моделей');
+}
+async function testGemini(){
+ if(!S.gemini?.key){toast('⚠️ Сначала введи ключ и нажми Сохранить','⚠️');return}
+ toast('🔄 Тест: '+modelLabel(S.gemini.model)+'…','⏳');
+ try{
+  const r=await callGemini('Ответь ровно одним словом на русском, подтверждающим что связь работает.');
+  toast('✅ ИИ ответил: '+r.slice(0,50),'🧠');
+ }catch(e){
+  toast('❌ '+e.message,'⚠️');
+  alert('Подробная ошибка:\n\n'+e.message+'\n\nКлюч: '+(S.gemini.key.slice(0,10)+'…')+'\nМодель: '+S.gemini.model+'\n\nЕсли «модель не найдена» — вставь точный ID с openrouter.ai (тапни модель → скопируй из адресной строки).');
+ }
 }
 function exportBackup(){
   const data={jarvis_aurora:localStorage.getItem('jarvis_aurora'),lt_days:localStorage.getItem('lt_days'),lt_w:localStorage.getItem('lt_w'),jarvis_wx:localStorage.getItem('jarvis_wx')};
-  const backup={app:'Jarvis Aurora',version:'7.0',date:new Date().toISOString(),data};
+  const backup={app:'Jarvis Aurora',version:'7.1',date:new Date().toISOString(),data};
   const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
   a.download='jarvis-aurora-backup-'+new Date().toISOString().slice(0,10)+'.json';
@@ -783,7 +804,7 @@ function legacyHandle(t,raw){
  if(/открой|зайди|покажи|включи/.test(t)){
   if(/финанс/.test(t))return setTimeout(()=>openApp('fin'),300),say('Открываю финансы');
   if(/дел|задач/.test(t))return setTimeout(()=>openApp('tasks'),300),say('Открываю дела');
-  if(/гедеон|гедеон|трекер|жизн/.test(t))return setTimeout(()=>openApp('gede'),300),say('Открываю Трекер');
+  if(/трекер|жизн/.test(t))return setTimeout(()=>openApp('gede'),300),say('Открываю Трекер');
   if(/настройк/.test(t))return setTimeout(()=>openApp('set'),300),say('Открываю настройки');
   if(/домой|главн/.test(t))return setTimeout(()=>hubGo(),300),say('Возвращаюсь домой')}
  if(/добавь|создай|запиши/.test(t)){
@@ -820,7 +841,7 @@ function legacyHandle(t,raw){
  if(/вес/.test(t))return say(gd.weight?'Вес: '+gd.weight+' кг':'Записей о весе нет');
  if(/сон/.test(t))return say(gd.sleep?'Сон: '+gd.sleep+' ч':'Нет записей о сне');
  if(/вод/.test(t))return say('Воды: '+gd.water+' л');
- return say('Не понял. Попробуй ещё раз или включи ИИ для умного парсинга')}
+ return say('Не понял. Попробуй ещё раз')}
 renderTasks();
 let deferredPrompt=null;
 window.addEventListener('beforeinstallprompt',e=>{
