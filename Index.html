@@ -256,10 +256,11 @@ select{appearance:none}
 <input id="geminiKey" type="password" placeholder="sk-or-v1-..." autocomplete="off"></div>
 <div class="frow"><label>Модель</label>
 <select id="geminiModel">
+  <option value="deepseek/deepseek-r1:free">DeepSeek R1 (free)</option>
+  <option value="deepseek/deepseek-chat:free">DeepSeek Chat (free)</option>
+  <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (free)</option>
   <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash (free)</option>
-  <option value="google/gemini-pro-1.5">Gemini 1.5 Pro (free tier)</option>
-  <option value="deepseek/deepseek-chat">DeepSeek Chat</option>
-  <option value="meta-llama/llama-3.1-70b-instruct:free">Llama 3.1 70B (free)</option>
+  <option value="mistralai/mistral-small-3.1-24b-instruct:free">Mistral Small (free)</option>
 </select></div>
 <div class="trow"><span>ИИ-анализ и умный голос</span>
 <input type="checkbox" id="geminiOn" style="width:24px;height:24px;accent-color:var(--acc)"></div>
@@ -312,12 +313,12 @@ function closeModal(){$('#modal').classList.remove('show')}
 $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
 function countUp(el,to,dur=900){const st=performance.now();(function f(now){const t=Math.min((now-st)/dur,1),e=1-Math.pow(1-t,3);el.textContent=fmt(to*e);if(t<1)requestAnimationFrame(f)})(st)}
 const CAT_COLORS={food:'#ff6b6b',trans:'#4d96ff',fun:'#c77dff',health:'#6bcb77',home:'#ffd93d',cloth:'#ff9f45',edu:'#00d1d1',salary:'#a3e635',free:'#22d3ee',other:'#94a3b8'};
-const DEF={fin_tx:[],fin_cat:[{id:'food',n:'Еда',i:'🍔'},{id:'trans',n:'Транспорт',i:'🚗'},{id:'fun',n:'Развлечения',i:'🎮'},{id:'health',n:'Здоровье',i:'💊'},{id:'home',n:'Дом',i:'🏠'},{id:'cloth',n:'Одежда',i:'👕'},{id:'edu',n:'Образование',i:'📚'},{id:'salary',n:'Зарплата',i:'💼'},{id:'free',n:'Фриланс',i:'💻'},{id:'other',n:'Прочее',i:'📦'}],tasks:[],projects:[],settings:{bg:1,voice:true},profile:{first:'',last:''},pin:'3119',gemini:{key:'',model:'google/gemini-2.0-flash-exp:free',on:true}};
+const DEF={fin_tx:[],fin_cat:[{id:'food',n:'Еда',i:'🍔'},{id:'trans',n:'Транспорт',i:'🚗'},{id:'fun',n:'Развлечения',i:'🎮'},{id:'health',n:'Здоровье',i:'💊'},{id:'home',n:'Дом',i:'🏠'},{id:'cloth',n:'Одежда',i:'👕'},{id:'edu',n:'Образование',i:'📚'},{id:'salary',n:'Зарплата',i:'💼'},{id:'free',n:'Фриланс',i:'💻'},{id:'other',n:'Прочее',i:'📦'}],tasks:[],projects:[],settings:{bg:1,voice:true},profile:{first:'',last:''},pin:'3119',gemini:{key:'',model:'deepseek/deepseek-r1:free',on:true}};
 let S;function load(){let d=null;try{d=JSON.parse(localStorage.getItem('jarvis_aurora'))}catch(e){}
  d=d&&d.fin_cat?d:JSON.parse(JSON.stringify(DEF));
  d.projects=d.projects||[];d.settings=d.settings||{bg:1};if(d.settings.voice===undefined)d.settings.voice=true;
  d.profile=d.profile||{first:'',last:''};d.pin=d.pin||'3119';
- d.gemini=Object.assign({key:'',model:'google/gemini-2.0-flash-exp:free',on:true},d.gemini||{});
+ d.gemini=Object.assign({key:'',model:'deepseek/deepseek-r1:free',on:true},d.gemini||{});
  d.fin_cat.forEach(c=>{if(CAT_COLORS[c.id])c.c=CAT_COLORS[c.id];if(!c.c)c.c='#94a3b8'});
  d.tasks.forEach(t=>{t.sub=t.sub||[];if(!t.date)t.date=t.deadline||null;delete t.deadline;t.doneDate=t.doneDate||null});
  return d}
@@ -340,7 +341,7 @@ function drawDots(err){$$('#dots i').forEach((d,i)=>d.classList.toggle('on',i<en
 $('#pad').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;vib(8);const d=b.dataset.d;if(d==='del'){entered=entered.slice(0,-1);drawDots();return}if(d==='bio'){toast('Биометрия скоро будет','🔐');return}if(entered.length>=4)return;entered+=d;drawDots();if(entered.length===4)setTimeout(checkPin,220)});
 function checkPin(){if(entered===S.pin){$('#lockMsg').textContent='Добро пожаловать';$('#lockMsg').style.color='var(--grn)';vib([20,40,20]);setTimeout(unlock,350)}else{drawDots(true);$('#lockMsg').textContent='Неверный код';$('#lockMsg').style.color='var(--red)';$('#lock').classList.add('shake');vib([60,40,60]);setTimeout(()=>{$('#lock').classList.remove('shake');entered='';drawDots();$('#lockMsg').textContent='Введите PIN-код';$('#lockMsg').style.color=''},600)}}
 function unlock(){$('#lock').classList.add('hide');$('#hub').classList.add('on');loadWeather();renderName();
- setTimeout(()=>toast(S.gemini.key?'🧠 Gemini активен · все системы онлайн':'Все системы активны','🟣'),700);
+ setTimeout(()=>toast(S.gemini.key?'🧠 ИИ активен · все системы онлайн':'Все системы активны','🟣'),700);
  const hang=S.tasks.filter(t=>!t.done&&t.date&&t.date<=todayStr()).length;
  if(hang)setTimeout(()=>toast(`Висит задач: ${hang}`,'🎯'),2000)}
 function renderName(){const el=$('#uName');const n=((S.profile.first||'')+' '+(S.profile.last||'')).trim();
@@ -387,48 +388,60 @@ function renderSet(){$('#themeTiles').innerHTML=[1,2,3].map(n=>`<div class="them
  $('#pfFirst').value=S.profile.first||'';$('#pfLast').value=S.profile.last||'';
  const vs=$('#voiceSw');vs.checked=!!S.settings.voice;vs.onchange=()=>{S.settings.voice=vs.checked;save();toast(vs.checked?'Озвучка включена':'Озвучка выключена','🎙')};
  $('#geminiKey').value=S.gemini.key||'';
- $('#geminiModel').value=S.gemini.model||'google/gemini-2.0-flash-exp:free';
+ $('#geminiModel').value=S.gemini.model||'deepseek/deepseek-r1:free';
  $('#geminiOn').checked=!!S.gemini.on;
- $('#geminiStatus').textContent=S.gemini.key?S.gemini.model.split('/').pop()+' ✓':'обычный парсер'}
+ $('#geminiStatus').textContent=S.gemini.key?(S.gemini.model.split('/').pop().replace(':free','')+' ✓'):'обычный парсер'}
 function savePin(){const v=$('#pinIn').value.trim();if(!/^\d{4}$/.test(v)){toast('PIN — 4 цифры','⚠️');return}S.pin=v;save();toast('PIN обновлён','🔐')}
 function saveGemini(){
  S.gemini.key=$('#geminiKey').value.trim();
  S.gemini.model=$('#geminiModel').value;
  S.gemini.on=$('#geminiOn').checked;
  save();
- $('#geminiStatus').textContent=S.gemini.key?S.gemini.model.split('/').pop()+' ✓':'обычный парсер';
- toast(S.gemini.key?'🧠 Gemini подключён':'Ключ очищен',S.gemini.key?'✅':'🧹');
+ $('#geminiStatus').textContent=S.gemini.key?(S.gemini.model.split('/').pop().replace(':free','')+' ✓'):'обычный парсер';
+ toast(S.gemini.key?'🧠 ИИ подключён':'Ключ очищен',S.gemini.key?'✅':'🧹');
 }
 async function testGemini(){
- if(!S.gemini?.key)return toast('Сначала введи ключ','⚠️');
- toast('🔄 Проверяю связь с '+S.gemini.model.split('/').pop()+'…','⏳');
+ if(!S.gemini?.key){toast('⚠️ Сначала введи ключ и нажми Сохранить','⚠️');return}
+ toast('🔄 Тест модели '+S.gemini.model.split('/').pop()+'…','⏳');
  try{
   const r=await callGemini('Ответь ровно одним словом на русском, подтверждающим что связь работает.');
-  toast('✅ ИИ ответил: '+r.slice(0,60),'🧠');
- }catch(e){toast('❌ '+e.message,'⚠️')}
+  toast('✅ Ответ ИИ: '+r.slice(0,50),'🧠');
+ }catch(e){
+  toast('❌ '+e.message,'⚠️');
+  alert('Подробная ошибка:\n\n'+e.message+'\n\nМодель: '+S.gemini.model+'\n\nЕсли «модель не найдена» — выбери другую в списке.');
+ }
 }
 async function callGemini(userMsg,systemCtx=''){
- const key=S.gemini?.key,model=S.gemini?.model||'google/gemini-2.0-flash-exp:free';
- if(!key)throw new Error('нет ключа');
- const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
-  method:'POST',
-  headers:{
-   'Authorization':'Bearer '+key,
-   'Content-Type':'application/json',
-   'HTTP-Referer':location.origin||'https://jarvis.local',
-   'X-Title':'Jarvis Aurora'
-  },
-  body:JSON.stringify({
-   model,
-   messages:[
-    {role:'system',content:systemCtx||'Ты голосовой ассистент Jarvis. Отвечай кратко на русском.'},
-    {role:'user',content:userMsg}
-   ],
-   temperature:0.7,max_tokens:600
-  })
- });
- if(!res.ok){const t=await res.text();throw new Error('HTTP '+res.status+': '+t.slice(0,120))}
- const j=await res.json();
+ const key=S.gemini?.key,model=S.gemini?.model||'deepseek/deepseek-r1:free';
+ if(!key)throw new Error('нет ключа — сохрани его в настройках');
+ let res;
+ try{
+  res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+   method:'POST',
+   headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},
+   body:JSON.stringify({
+    model,
+    messages:[
+     {role:'system',content:systemCtx||'Ты ассистент. Отвечай кратко на русском.'},
+     {role:'user',content:userMsg}
+    ],
+    temperature:0.7,max_tokens:600
+   })
+  });
+ }catch(netErr){
+  throw new Error('сеть: '+netErr.message+' (проверь интернет)');
+ }
+ const txt=await res.text();
+ if(!res.ok){
+  let msg='HTTP '+res.status;
+  try{msg+=' — '+JSON.parse(txt).error.message}catch(e){msg+=' — '+txt.slice(0,80)}
+  if(res.status===404)msg='модель не найдена (устарела). Выбери другую!';
+  if(res.status===402)msg='кончились кредиты или модель не бесплатна';
+  if(res.status===401)msg='неверный ключ';
+  if(res.status===429)msg='слишком много запросов, подожди';
+  throw new Error(msg);
+ }
+ let j;try{j=JSON.parse(txt)}catch(e){throw new Error('странный ответ сервера')}
  if(j.error)throw new Error(j.error.message||'api error');
  return j.choices?.[0]?.message?.content?.trim()||'';
 }
@@ -490,7 +503,7 @@ function finAi(){
  const local=buildLocalInsights(m);
  let html=local;
  if(S.gemini?.on&&S.gemini?.key){
-  html+=`<div class="ai gemini"><div class="ic2">🧠</div><div><div class="t">Gemini · глубокий анализ</div><div class="b" id="geminiAnalysis">⏳ Анализирую все сферы…</div></div></div>`;
+  html+=`<div class="ai gemini"><div class="ic2">🧠</div><div><div class="t">ИИ · глубокий анализ</div><div class="b" id="geminiAnalysis">⏳ Анализирую все сферы…</div></div></div>`;
   setTimeout(async()=>{try{
    const ctx=buildContext();
    const last30=[];for(let i=13;i>=0;i--){const k=addDays(todayStr(),-i);const day=S.fin_tx.filter(t=>t.date===k);const spent=day.filter(t=>t.type==='exp').reduce((a,t)=>a+t.amt,0);const inc=day.filter(t=>t.type==='inc').reduce((a,t)=>a+t.amt,0);const ts=S.tasks.filter(t=>t.date===k).length;last30.push({date:k,spent,inc,tasks:ts})}
@@ -715,7 +728,7 @@ function vLog(cls,txt){const d=document.createElement('div');
  else{d.className='vl '+cls;d.textContent=txt}
  $('#vLog').appendChild(d);$('#vLog').scrollTop=$('#vLog').scrollHeight}
 function say(txt,fromAI=false){
- if(fromAI)vLog('ai-tag','Gemini');
+ if(fromAI)vLog('ai-tag','ИИ');
  vLog('a',txt);$('#vText').textContent=txt;
  if(S.settings.voice&&window.speechSynthesis){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang='ru-RU';u.rate=1.02;u.pitch=.85;
   const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith('ru'));if(v)u.voice=v;speechSynthesis.speak(u)}}
@@ -741,7 +754,7 @@ ${ctx}
   const cmd=JSON.parse(match[0]);
   return executeCmd(cmd,raw);
  }catch(e){
-  console.warn('Gemini fallback:',e);
+  console.warn('ИИ ошибка, запасной парсер:',e);
   return legacyHandle(t,raw);
  }
 }
@@ -770,7 +783,7 @@ function legacyHandle(t,raw){
  if(/открой|зайди|покажи|включи/.test(t)){
   if(/финанс/.test(t))return setTimeout(()=>openApp('fin'),300),say('Открываю финансы');
   if(/дел|задач/.test(t))return setTimeout(()=>openApp('tasks'),300),say('Открываю дела');
-  if(/гедеон|gedeon|трекер|жизн/.test(t))return setTimeout(()=>openApp('gede'),300),say('Открываю Трекер');
+  if(/гедеон|гедеон|трекер|жизн/.test(t))return setTimeout(()=>openApp('gede'),300),say('Открываю Трекер');
   if(/настройк/.test(t))return setTimeout(()=>openApp('set'),300),say('Открываю настройки');
   if(/домой|главн/.test(t))return setTimeout(()=>hubGo(),300),say('Возвращаюсь домой')}
  if(/добавь|создай|запиши/.test(t)){
@@ -807,10 +820,8 @@ function legacyHandle(t,raw){
  if(/вес/.test(t))return say(gd.weight?'Вес: '+gd.weight+' кг':'Записей о весе нет');
  if(/сон/.test(t))return say(gd.sleep?'Сон: '+gd.sleep+' ч':'Нет записей о сне');
  if(/вод/.test(t))return say('Воды: '+gd.water+' л');
- return say('Не понял. Попробуй ещё раз или включи Gemini для умного парсинга')}
+ return say('Не понял. Попробуй ещё раз или включи ИИ для умного парсинга')}
 renderTasks();
-
-/* ============ PWA: Install prompt ============ */
 let deferredPrompt=null;
 window.addEventListener('beforeinstallprompt',e=>{
  e.preventDefault();deferredPrompt=e;
@@ -824,8 +835,6 @@ $('#installBtn').onclick=async()=>{
  deferredPrompt=null;$('#installBanner').classList.remove('show');
 };
 $('#installClose').onclick=()=>{$('#installBanner').classList.remove('show');localStorage.jarvis_pwa_dismissed='1'};
-
-/* ============ Service Worker registration ============ */
 if('serviceWorker' in navigator){
  window.addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js')
