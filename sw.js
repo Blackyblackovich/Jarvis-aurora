@@ -1,47 +1,38 @@
-const CACHE_NAME = 'jarvis-v7-r1';
-const ASSETS = [
-  './',
-  './index.html',
-  './gedeon.html',
-  './manifest.webmanifest',
-  './icons/icon-192.svg',
-  './icons/icon-512.svg'
-];
+const CACHE = 'jarvis-v7.2-net';
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(c => c.addAll(ASSETS))
-  );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-    ))
-  );
-  self.clients.claim();
+  e.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)));
+    await self.clients.claim();
+    const wins = await self.clients.matchAll({ type: 'window' });
+    wins.forEach(c => { try { c.navigate(c.url); } catch (e) {} });
+  })());
 });
 
 self.addEventListener('fetch', e => {
   const req = e.request;
-  // API запросы (OpenRouter, погода) — только сеть
-  if (req.url.includes('openrouter.ai') || req.url.includes('open-meteo.com') || req.url.includes('bigdatacloud.net')) {
-    e.respondWith(fetch(req).catch(() => caches.match('./index.html')));
-    return;
-  }
-  // Всё остальное — cache-first с fallback на сеть
-  e.respondWith(
-    caches.match(req).then(hit => {
-      const fetchPromise = fetch(req).then(res => {
-        if (res.ok && req.method === 'GET') {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then(c => c.put(req, copy));
-        }
-        return res;
-      }).catch(() => caches.match('./index.html'));
-      return hit || fetchPromise;
-    })
-  );
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.hostname !== self.location.hostname) return;
+  e.respondWith((async () => {
+    try {
+      const res = await fetch(req);
+      if (res && res.ok) {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(req, copy));
+      }
+      return res;
+    } catch (err) {
+      const hit = await caches.match(req);
+      if (hit) return hit;
+      const fb = await caches.match('./index.html');
+      if (fb) return fb;
+      throw err;
+    }
+  })());
 });
