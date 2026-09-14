@@ -1,6 +1,17 @@
 [build]
   publish = "."
 
+[[redirects]]
+  from = "/gigachat/*"
+  to = "https://gigachat.devices.sberbank.ru/api/v1/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
 [[headers]]
   for = "/sw.js"
   [headers.values]
@@ -21,8 +32,3 @@
   for = "/icons/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
